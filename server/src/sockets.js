@@ -1,11 +1,21 @@
+
 const socketIO = require('socket.io');
 
 function init(server) {
-  const io = socketIO(server)
-  console.log('socket is Listening!');
+  const io = socketIO(server);
+  console.log('sockets server is listening for connections!');
 
   io.on('connection', socket => {
-    console.log('client connected!');
+    io.emit('message-client-connected', socket.id);
+
+    socket.on('mousemove', event => {
+      event.id = socket.id;
+      io.emit('mousemove', event);
+    });
+
+    socket.on('disconnect', event => {
+      io.emit('message-client-disconnected', socket.id);
+    });
   });
 }
 

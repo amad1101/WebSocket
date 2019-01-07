@@ -9643,14 +9643,50 @@ var _socket = _interopRequireDefault(require("socket.io-client"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // This is the client
+var mice = {};
 var API_URL = 'http://localhost:5000';
 
 var socket = _socket.default.connect(API_URL);
 
 socket.on('connect', function () {
   console.log('connected to the server');
+}); // socket.on('message-client-connected', (id) => {
+//   if (socket.id !== id) {
+//     const span = document.createElement('span');
+//     span.stile.position = 'absolute';
+//     span.textContent = '\u{1F401}';
+//     mice[id] = span;
+//     document.body.appendChild(span);
+//   }
+// });
+
+socket.on('message-client-disconnected', function (id) {
+  if (mice[id]) {
+    document.body.removeChild(mice[id]);
+  }
 });
-console.log('it\'s working');
+socket.on('mousemove', function (event) {
+  if (socket.id !== event.id) {
+    var mouse = mice[event.id];
+
+    if (!mouse) {
+      var span = document.createElement('span');
+      span.style.position = 'absolute';
+      span.textContent = "\uD83D\uDC01";
+      mice[event.id] = span;
+      document.body.appendChild(span);
+    }
+
+    mouse.style.top = event.y + 'px';
+    mouse.style.left = event.x + 'px';
+  }
+});
+document.addEventListener('mousemove', function (event) {
+  socket.emit('mousemove', {
+    x: event.clientX,
+    y: event.clientY
+  });
+});
 },{"socket.io-client":"node_modules/socket.io-client/lib/index.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
